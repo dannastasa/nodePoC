@@ -2,6 +2,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as mongoose from "mongoose";
 import { AirportRouter } from "./controllers";
+import { config } from "./config/config";
 
 class App {
 
@@ -15,26 +16,22 @@ class App {
     }
 
     public app: express.Application;
-    private mongoUrl: string = 'mongodb://localhost:27017/AirportsDatabase';
-
+    
     private config(): void {
         this.app.use(bodyParser.json({ type: 'application/json' }));
         this.app.use(bodyParser.urlencoded({ extended: false }));
     }
 
     private mongoConfig(): void {
-        const options = {
-            socketTimeoutMS: 30000,
-            keepAlive: true,
-            reconnectTries: 30000,
-            useNewUrlParser: true
-        };
+        const { db: { host, port, name } } = config;
+        const mongoUrl = `mongodb://${host}:${port}/${name}`;
 
-        mongoose.connect(this.mongoUrl, options).then(() => {
-                console.log('Connection to Mongo succeeded');
-            }, (error) => {
-                console.log('Connection to Mongo failed. Reason: ' + error);
-            });
+        mongoose.connect(mongoUrl, { useNewUrlParser: true })
+                .then(() => {
+                    console.log('Connection to Mongo succeeded');
+                }, (error) => {
+                    console.log('Connection to Mongo failed. Reason: ' + error);
+                });
     }
 
     private routes(): void {

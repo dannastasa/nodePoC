@@ -1,72 +1,61 @@
-import * as mongoose from 'mongoose';
 import { Request, Response, Router } from "express";
-import { AirportSchema } from "../models/AirportModel";
-
-const Airport = mongoose.model('Airport', AirportSchema);
+import { AirportRepository } from '../repository/AirportRepository';
+import { IRepository } from "repository/IRepository";
+import { Airport } from "../models/Airport";
 
 class AirportController {
     router: Router;
 
+    private airportRepository: IRepository<Airport>;
+
     constructor() {
+        this.airportRepository = new AirportRepository();
         this.router = Router();
         this.init();
     }
 
     public getAll(req: Request, res: Response): void {
-        Airport.find((err, airports) => {
-            if(err) {
-                res.status(500).send(err);
-            } 
-            res.json(airports);
-        });
+        this.airportRepository.getAll()
+            .catch(err => res.status(500).send(err))
+            .then(airports => res.json(airports));
     }
 
     public getById(req: Request, res: Response): void {
-        Airport.findById(req.params.id, (err, airport) => {
-            if(err) {
-                res.status(500).send(err);
-            }
-            res.json(airport);
-        });
+        this.airportRepository.getById(req.params.id)
+            .catch(err => res.status(500).send(err))
+            .then(airport => {
+                if (airport == null) {
+                    res.status(404);
+                }
+                res.json(airport);
+            });
     }
 
     public add(req: Request, res: Response): void {
-        let newAirport = new Airport(req.body);
-
-        newAirport.save((err, airport) => {
-            if(err){
-                res.status(400).send(err);
-            } 
-
-            res.json(airport);
-        });
+        this.airportRepository.add(req.body)
+            .catch(err => res.status(400).send(err))
+            .then(airport => res.json(airport));
     }
 
     public update(req: Request, res: Response): void {
-        Airport.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, airport) => {
-            if(err) {
-                res.status(400).send(err);
-            }
-            res.json(airport);
-        });
+        this.airportRepository.update(req.params.id, req.body)
+            .catch(err => res.status(400).send(err))
+            .then(airport => res.json(airport));
     }
 
     public delete(req: Request, res: Response): void {
-        Airport.findByIdAndDelete(req.params.id, (err) => {
-            if(err) {
-                res.status(400).send(err);
-            }
-            res.status(204).json({});
-        });
+        this.airportRepository.delete(req.params.id)
+            .catch(err => res.status(400).send(err))
+            .then(() => res.status(204).json());
     }
-    
+
 
     init(): any {
-        this.router.get('/', this.getAll)
-                   .get('/:id', this.getById)
-                   .post('/', this.add)
-                   .put('/:id', this.update)
-                   .delete('/:id', this.delete);
+        this.router.get('/', this.getAll.bind(this))
+            .get('/:id', this.getById.bind(this))
+            .post('/', this.add.bind(this))
+            .put('/:id', this.update.bind(this))
+            .delete('/:id', this.delete.bind(this));
     }
 }
 
