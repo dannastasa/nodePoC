@@ -1,8 +1,9 @@
-import { IRepository } from "./IRepository";
 import { Airport } from "../models/Airport";
-import { Document } from 'mongoose';
+import { Provides } from "typescript-ioc";
+import { IAirportRepository } from "./IAirportRepository";
 
-export class AirportRepository implements IRepository<Airport> {
+@Provides(IAirportRepository)
+export class AirportRepository implements IAirportRepository {
     
     private AirportModel;
 
@@ -10,23 +11,28 @@ export class AirportRepository implements IRepository<Airport> {
         this.AirportModel = new Airport().getModelForClass(Airport);
     }
 
-    getAll(): Promise<Document[]> {
+    getAll(): Promise<Airport[]> {
         return this.AirportModel.find().exec();
     }    
     
-    getById(id: String): Promise<Document> {
+    getById(id: String): Promise<Airport> {
         return this.AirportModel.findById(id).exec();
     }
 
-    add(document: Document): Promise<Document> {
-        return document.save();
+    add(document: Airport): Promise<Airport> {
+        let newAirport = new this.AirportModel(document);
+        return newAirport.save();
     }
 
-    update(id: String, document: Document): Promise<Document> {
+    update(id: String, document: Airport): Promise<Airport> {
         return this.AirportModel.findByIdAndUpdate(id, document).exec();
     }
 
-    delete(id: String): Promise<Document> {
+    delete(id: String): Promise<Airport> {
         return this.AirportModel.findByIdAndRemove(id).exec();
+    }
+
+    getAirportsByCity(cityName: string): Promise<Airport[]> {
+        return this.AirportModel.find({city: cityName}).exec();
     }
 }

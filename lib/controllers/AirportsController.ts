@@ -1,52 +1,55 @@
 import { Request, Response, Router } from "express";
-import { AirportRepository } from '../repository/AirportRepository';
-import { IRepository } from "repository/IRepository";
+import { Inject, Provides } from "typescript-ioc";
+import { IAirportRepository } from "../repository/IAirportRepository";
 import { Airport } from "../models/Airport";
 
-class AirportController {
-    router: Router;
+@Provides(AirportController)
+export class AirportController {
+    private router: Router;
 
-    private airportRepository: IRepository<Airport>;
+    @Inject
+    private airportRepository: IAirportRepository;
+
+    private airportModel;
 
     constructor() {
-        this.airportRepository = new AirportRepository();
         this.router = Router();
         this.init();
+        this.airportModel = new Airport().getModelForClass(Airport);
     }
 
     public getAll(req: Request, res: Response): void {
         this.airportRepository.getAll()
-            .catch(err => res.status(500).send(err))
-            .then(airports => res.json(airports));
+            .then(airports => res.status(200).json(airports))
+            .catch(err => res.status(400).send(err));
     }
 
     public getById(req: Request, res: Response): void {
         this.airportRepository.getById(req.params.id)
-            .catch(err => res.status(500).send(err))
-            .then(airport => {
-                if (airport == null) {
-                    res.status(404);
-                }
-                res.json(airport);
-            });
+            .then(airport => res.status(200).json(airport))
+            .catch(() => res.status(404).send());
     }
 
     public add(req: Request, res: Response): void {
-        this.airportRepository.add(req.body)
-            .catch(err => res.status(400).send(err))
-            .then(airport => res.json(airport));
+        const newAirport = new this.airportModel(req.body);
+
+        this.airportRepository.add(newAirport)
+            .then(airport => res.status(200).json(airport))
+            .catch(err => res.status(400).send(err));
     }
 
     public update(req: Request, res: Response): void {
-        this.airportRepository.update(req.params.id, req.body)
-            .catch(err => res.status(400).send(err))
-            .then(airport => res.json(airport));
+        const airport = new this.airportModel(req.body);
+
+        this.airportRepository.update(req.params.id, airport)
+            .then(airport => res.status(200).json(airport))
+            .catch(err => res.status(400).send(err));
     }
 
     public delete(req: Request, res: Response): void {
         this.airportRepository.delete(req.params.id)
-            .catch(err => res.status(400).send(err))
-            .then(() => res.status(204).json());
+            .then(() => res.status(204).send())
+            .catch(err => res.status(400).send(err));
     }
 
 
@@ -57,6 +60,8 @@ class AirportController {
             .put('/:id', this.update.bind(this))
             .delete('/:id', this.delete.bind(this));
     }
-}
 
-export const AirportRouter = new AirportController().router;
+    public getRoutes(): Router {
+        return this.router;
+    }
+}

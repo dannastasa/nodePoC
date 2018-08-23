@@ -1,25 +1,31 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as mongoose from "mongoose";
-import { AirportRouter } from "./controllers";
-import { config } from "./config/config";
+import { AirportController } from "./controllers";
+import { config, IocContainerConfig } from "./config";
+import { Inject } from "typescript-ioc";
 
-class App {
+export class App {
 
     constructor() {
         this.app = express();
-        
+
         this.config();
         this.mongoConfig();
 
         this.routes();
     }
 
-    public app: express.Application;
-    
+    private app: express.Application;
+
+    @Inject
+    private airportController: AirportController;
+
     private config(): void {
         this.app.use(bodyParser.json({ type: 'application/json' }));
         this.app.use(bodyParser.urlencoded({ extended: false }));
+
+        IocContainerConfig.configure();
     }
 
     private mongoConfig(): void {
@@ -27,16 +33,18 @@ class App {
         const mongoUrl = `mongodb://${host}:${port}/${name}`;
 
         mongoose.connect(mongoUrl, { useNewUrlParser: true })
-                .then(() => {
-                    console.log('Connection to Mongo succeeded');
-                }, (error) => {
-                    console.log('Connection to Mongo failed. Reason: ' + error);
-                });
+            .then(() => {
+                console.log('Connection to Mongo succeeded');
+            }, (error) => {
+                console.log('Connection to Mongo failed. Reason: ' + error);
+            });
     }
 
     private routes(): void {
-        this.app.use('/api/v1/airports', AirportRouter);
+        this.app.use('/api/v1/airports', this.airportController.getRoutes());
+    }
+
+    public getExpressApp(): express.Application {
+        return this.app;
     }
 }
-
-export default new App().app;
