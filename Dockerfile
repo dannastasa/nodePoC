@@ -1,4 +1,4 @@
-FROM stefanscherer/node-windows:latest
+FROM node:8
 
 ENV PORT 4040
 
