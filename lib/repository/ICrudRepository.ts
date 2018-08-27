@@ -1,4 +1,3 @@
-import { Document } from 'mongoose';
 import { Typegoose } from 'typegoose';
 
 export abstract class ICrudRepository<T extends Typegoose> {

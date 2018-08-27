@@ -36,7 +36,8 @@ export class App {
             .then(() => {
                 console.log('Connection to Mongo succeeded');
             }, (error) => {
-                console.log('Connection to Mongo failed. Reason: ' + error);
+                console.log('Connection to MongoDB failed. Reason: ')
+                console.log(error);
             });
     }
 
