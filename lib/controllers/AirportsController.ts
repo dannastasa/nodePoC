@@ -20,7 +20,13 @@ export class AirportController {
 
     public getAll(req: Request, res: Response): void {
         this.airportRepository.getAll()
-            .then(airports => res.status(200).json(airports))
+            .then(airports => {
+                if(airports.length == 0) {
+                    res.status(204).send();
+                } else {
+                    res.status(200).json(airports)
+                }
+            })
             .catch(err => res.status(400).send(err));
     }
 
@@ -34,15 +40,13 @@ export class AirportController {
         const newAirport = new this.airportModel(req.body);
 
         this.airportRepository.add(newAirport)
-            .then(airport => res.status(200).json(airport))
+            .then(airport => res.status(201).json(airport))
             .catch(err => res.status(400).send(err));
     }
 
     public update(req: Request, res: Response): void {
-        const airport = new this.airportModel(req.body);
-
-        this.airportRepository.update(req.params.id, airport)
-            .then(airport => res.status(200).json(airport))
+        this.airportRepository.update(req.params.id, req.body)
+            .then(updatedAirport => res.status(200).json(updatedAirport))
             .catch(err => res.status(400).send(err));
     }
 
@@ -53,7 +57,7 @@ export class AirportController {
     }
 
 
-    init(): any {
+    private init(): any {
         this.router.get('/', this.getAll.bind(this))
             .get('/:id', this.getById.bind(this))
             .post('/', this.add.bind(this))

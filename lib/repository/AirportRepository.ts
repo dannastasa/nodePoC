@@ -11,28 +11,28 @@ export class AirportRepository implements IAirportRepository {
         this.AirportModel = new Airport().getModelForClass(Airport);
     }
 
-    getAll(): Promise<Airport[]> {
+    public getAll(): Promise<Airport[]> {
         return this.AirportModel.find().exec();
     }    
     
-    getById(id: String): Promise<Airport> {
+    public getById(id: string): Promise<Airport> {
         return this.AirportModel.findById(id).exec();
     }
 
-    add(document: Airport): Promise<Airport> {
+    public add(document: Airport): Promise<Airport> {
         let newAirport = new this.AirportModel(document);
         return newAirport.save();
     }
 
-    update(id: String, document: Airport): Promise<Airport> {
-        return this.AirportModel.findByIdAndUpdate(id, document).exec();
+    public update(id: string, document: any): Promise<Airport> {
+        return this.AirportModel.findByIdAndUpdate(id, document, { new: true }).exec();
     }
 
-    delete(id: String): Promise<Airport> {
+    public delete(id: string): Promise<Airport> {
         return this.AirportModel.findByIdAndRemove(id).exec();
     }
 
-    getAirportsByCity(cityName: string): Promise<Airport[]> {
+    public getAirportsByCity(cityName: string): Promise<Airport[]> {
         return this.AirportModel.find({city: cityName}).exec();
     }
 }

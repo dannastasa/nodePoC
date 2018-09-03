@@ -7,11 +7,11 @@ import { Inject } from "typescript-ioc";
 
 export class App {
 
-    constructor() {
+    constructor(dbUrl?: string) {
         this.app = express();
 
         this.config();
-        this.mongoConfig();
+        this.mongoConfig(dbUrl);
 
         this.routes();
     }
@@ -28,13 +28,14 @@ export class App {
         IocContainerConfig.configure();
     }
 
-    private mongoConfig(): void {
+    private mongoConfig(url?: string): void {
         const { db: { host, port, name } } = config;
-        const mongoUrl = `mongodb://${host}:${port}/${name}`;
+        const mongoUrl = url || `mongodb://${host}:${port}/${name}`;
 
+        mongoose.set('useFindAndModify', false);
         mongoose.connect(mongoUrl, { useNewUrlParser: true })
             .then(() => {
-                console.log('Connection to Mongo succeeded');
+                
             }, (error) => {
                 console.log('Connection to MongoDB failed. Reason: ')
                 console.log(error);

@@ -1,0 +1,31 @@
+{
+    "airports": [
+        {
+            "_id": "5b83bf3135860c000fab9b6a",
+            "name": "Luton International Airport",
+            "city": "London",
+            "country": "The United Kingdom",
+            "planeCapacity": 250,
+            "creationDate": "2018-08-27T09:06:57.267Z",
+            "__v": 0
+        },
+        {
+            "_id": "5b83bf3735860c000fab9b6c",
+            "name": "Heathrow International Airport",
+            "city": "London",
+            "country": "The United Kingdom",
+            "planeCapacity": 350,
+            "creationDate": "2018-08-27T09:07:03.813Z",
+            "__v": 0
+        },
+        {
+            "_id": "5b87dae53f6b94001a6a1d5c",
+            "name": "Changi International Airport",
+            "city": "Singapore",
+            "country": "Singapore",
+            "planeCapacity": 300,
+            "creationDate": "2018-08-27T09:07:03.813Z",
+            "__v": 0
+        }
+    ]
+}
