@@ -16,11 +16,11 @@ const airport = {
 
 
 before(() =>
-mongoUnit
-    .start()
-    .then(url => {
-        app = new App(url).getExpressApp();
-    }));
+    mongoUnit
+        .start()
+        .then(url => {
+            app = new App(url).getExpressApp();
+        }));
 
 beforeEach(() => mongoUnit.load(dbData));
 
@@ -81,17 +81,27 @@ describe('/airports', () => {
                     expect(response.body).to.contain(airport);
                 });
         });
+
+        it('should return 400 bad request when submitting data with missing fields', () => {
+            const badAirport = { ...airport };
+            badAirport.name = null;
+
+            return request(app)
+                .post('/api/v1/airports')
+                .send(badAirport)
+                .expect(400);
+        });
     });
 
     describe('PUT /airports/:id', () => {
-        it('should return the updated airport with a status of 204 when update is successful', () => {
+        it('should return the updated airport with a status of 200 when update is successful', () => {
             return request(app)
                 .post('/api/v1/airports')
                 .send(airport)
                 .expect(201)
                 .then(async response => {
                     const entityId = response.body._id;
-                    const updatedAirport = airport;
+                    const updatedAirport = { ...airport };
                     updatedAirport.name = 'updated airport';
 
                     await request(app)

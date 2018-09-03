@@ -4,7 +4,7 @@
   "description": "Node + TypeScript + MongoDB CRUD PoC",
   "main": "server.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npm test && tsc",
     "test": "mocha -r ts-node/register lib/**/*.spec.ts --timeout 120000 --exit",
     "dev": "ts-node ./lib/server.ts",
     "start": "node ./dist/server.js",
